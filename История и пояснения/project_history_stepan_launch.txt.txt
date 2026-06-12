@@ -1,0 +1,53 @@
+    1  nmcli connection show
+    2  ip a
+    3  sudo hostnamectl set-hostname mephi-2026.domain.local
+    4  hostnamectl
+    5  sudo nmcli connection modify 'Wired connection 1' ipv4.addresses 192.168.0.101/24
+    6  sudo nmcli connection modify 'Wired connection 1' ipv4.gateway 192.168.0.1
+    7  sudo nmcli connection modify 'Wired connection 1' ipv4.dns '8.8.8.8'
+    8  sudo nmcli connection modify 'Wired connection 1' ipv4.method manual
+    9  sudo nmcli connection modify 'Wired connection 1' ipv4.ignore-auto-dns yes
+   10  sudo nmcli connection down 'Wired connection 1'
+   11  sudo nmcli connection up 'Wired connection 1'
+   12  ip addr show
+   13  ping -c 4 8.8.8.8 > /tmp/network_check.txt
+   14  ping -c 4 192.168.0.1 >> /tmp/network_check.txt
+   15  cat /tmp/network_check.txt
+   16  sudo dnf install -y nginx
+   17  sudo dnf install -y tcpdump
+   18  sudo dnf install -y libcap-ng-utils
+   19  dnf download --destdir=/tmp tcpdump
+   20  sudo rpm -U /tmp/tcpdump-*.rpm
+   21  lsblk
+   22  sudo fdisk /dev/sdb
+   23  sudo mkfs.ext4 -L MEPHI_DATA /dev/sdb1
+   24  sudo mkdir -p /data/mephi-web
+   25  echo 'LABEL=MEPHI_DATA  /data/mephi-web  ext4  defaults  0  2' | sudo tee -a /etc/fstab
+   26  sudo mount -a
+   27  sudo systemctl daemon-reload
+   28  sudo mount -a
+   29  df -h | grep mephi
+   30  sudo systemctl start nginx
+   31  sudo systemctl enable nginx
+   32  sudo journalctl -u nginx --since '5 minutes ago' > /tmp/nginx_recent_logs.txt
+   33  cat /tmp/nginx_recent_logs.txt
+   34  sudo groupadd mephi-devs
+   35  sudo useradd -m -G mephi-devs mephi-admin
+   36  sudo passwd mephi-admin
+   37  sudo visudo
+   38  sudo chown mephi-admin:mephi-devs /data/mephi-web
+   39  sudo chmod 2775 /data/mephi-web
+   40  sestatus
+   41  sudo semanage fcontext -a -t httpd_sys_content_t '/data/mephi-web(/.*)?'
+   42  sudo restorecon -Rv /data/mephi-web
+   43  sudo chmod u-s /usr/sbin/tcpdump
+   44  sudo setcap cap_net_raw,cap_net_admin+ep /usr/sbin/tcpdump
+   45  sudo -u mephi-admin tcpdump --help
+   46  echo 'root' | sudo tee /etc/security/denied_users
+   47  sudo chmod 644 /etc/security/denied_users
+   48  echo 'auth required pam_listfile.so item=user sense=deny file=/etc/security/denied_users onerr=succeed' | sudo tee -a /etc/pam.d/sshd
+   49  echo 'auth required pam_listfile.so item=user sense=deny file=/etc/security/denied_users onerr=succeed' | sudo tee -a /etc/pam.d/login
+   50  sudo systemctl restart sshd
+   51  history > ~/project_history_stepan_launch.txt
+   52  su - mephi-admin
+   53  sudo cp /home/mephi-admin/project_history_mephi-admin.txt /home/stepan/

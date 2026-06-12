@@ -1,0 +1,31 @@
+    1  echo 'Hello from Student: 255981' > /data/mephi-web/index.html
+    2  sudo restorecon -v /data/mephi-web/index.html
+    3  sudo firewall-cmd --permanent --add-service=http
+    4  sudo firewall-cmd --reload
+    5  sudo firewall-cmd --list-all
+    6  sudo tee /etc/nginx/conf.d/mephi-web.conf << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    root /data/mephi-web;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    access_log /var/log/nginx/mephi-access.log;
+    error_log /var/log/nginx/mephi-error.log;
+}
+EOF
+
+    7  sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak 2>/dev/null || true
+    8  sudo mv /etc/nginx/default.d/welcome.conf /etc/nginx/default.d/welcome.conf.bak 2>/dev/null || true
+    9  sudo nginx -t
+   10  sudo systemctl reload nginx
+   11  sudo restorecon -Rv /data/mephi-web
+   12  curl http://localhost
+   13  curl http://192.168.0.101
+   14  history > ~/project_history_mephi-admin.txt
